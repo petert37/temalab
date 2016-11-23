@@ -14,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.protocol.HttpRequestExecutor;
 import thread.ImagePartThread;
 
 import javax.imageio.ImageIO;
@@ -29,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.*;
 
 @WebServlet("/Image")
 public class Image extends HttpServlet {
@@ -103,11 +105,15 @@ public class Image extends HttpServlet {
         List<RenderPart> renderParts = Collections.synchronizedList(new ArrayList<RenderPart>());
 
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setDefaultMaxPerRoute(MAX_CONNECTIONS);
         cm.setMaxTotal(MAX_CONNECTIONS);
 
         CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
 
-        List<Thread> threads = new ArrayList<>(requestCount);
+        List<Runnable> threads = new ArrayList<>(requestCount);
+//        BlockingQueue<Runnable> threads = new ArrayBlockingQueue<>(requestCount);
+        ForkJoinPool pool = new ForkJoinPool();
+//        ThreadPoolExecutor tpe = new ThreadPoolExecutor(8, MAX_CONNECTIONS, 5000, TimeUnit.MILLISECONDS, threads);
 
         for (int i = 0; i < requestCount; i++) {
             inputParams.startY = i * imagePartHeight;
@@ -117,24 +123,34 @@ public class Image extends HttpServlet {
             try {
                 HttpPost post = new HttpPost(IMAGE_PART_URL);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
-                Thread thread = new ImagePartThread(client, post, renderParts);
-                threads.add(thread);
+//                pool.submit(new ImagePartThread(client, post, renderParts));
+                pool.submit(new ImagePartThread(client, post, renderParts));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-
-        threads.stream().filter(t -> t != null).forEach(Thread::start);
-
-        for (Thread t : threads) {
+        pool.shutdown();
+        while (!pool.isTerminated()) {
             try {
-                if (t != null) {
-                    t.join();
-                }
+                Thread.sleep(30);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+//        tpe.shutdown();
+//        while (!tpe.isTerminated()) { }
+
+//        threads.stream().filter(t -> t != null).forEach(Thread::start);
+//
+//        for (Thread t : threads) {
+//            try {
+//                if (t != null) {
+//                    t.join();
+//                }
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         return RayTracer.compose(inputParams.imageWidth, inputParams.imageHeight, renderParts);
     }
