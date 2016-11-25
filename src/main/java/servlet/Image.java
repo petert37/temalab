@@ -110,10 +110,7 @@ public class Image extends HttpServlet {
 
         CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
 
-        List<Runnable> threads = new ArrayList<>(requestCount);
-//        BlockingQueue<Runnable> threads = new ArrayBlockingQueue<>(requestCount);
-        ForkJoinPool pool = new ForkJoinPool();
-//        ThreadPoolExecutor tpe = new ThreadPoolExecutor(8, MAX_CONNECTIONS, 5000, TimeUnit.MILLISECONDS, threads);
+        List<Thread> threads = new ArrayList<>(requestCount);
 
         for (int i = 0; i < requestCount; i++) {
             inputParams.startY = i * imagePartHeight;
@@ -123,34 +120,24 @@ public class Image extends HttpServlet {
             try {
                 HttpPost post = new HttpPost(IMAGE_PART_URL);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
-//                pool.submit(new ImagePartThread(client, post, renderParts));
-                pool.submit(new ImagePartThread(client, post, renderParts));
+                Thread thread = new ImagePartThread(client, post, renderParts);
+                threads.add(thread);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        pool.shutdown();
-        while (!pool.isTerminated()) {
+
+        threads.stream().filter(t -> t != null).forEach(Thread::start);
+
+        for (Thread t : threads) {
             try {
-                Thread.sleep(30);
+                if (t != null) {
+                    t.join();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-//        tpe.shutdown();
-//        while (!tpe.isTerminated()) { }
-
-//        threads.stream().filter(t -> t != null).forEach(Thread::start);
-//
-//        for (Thread t : threads) {
-//            try {
-//                if (t != null) {
-//                    t.join();
-//                }
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         return RayTracer.compose(inputParams.imageWidth, inputParams.imageHeight, renderParts);
     }
