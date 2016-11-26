@@ -14,9 +14,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.HttpRequestExecutor;
-import thread.ImagePartThread;
+import thread.ImagePartRunnable;
 
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -30,7 +31,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @WebServlet("/Image")
 public class Image extends HttpServlet {
@@ -43,6 +45,9 @@ public class Image extends HttpServlet {
 
     //    public static final String CONFIG_URL = "http://pastebin.com/raw/uSJbJ7AX"; //localhost
     public static final String CONFIG_URL = "http://pastebin.com/raw/8D25bRdg";
+
+    @Resource(name = "ImagePartExecutorService")
+    ManagedExecutorService executorService;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -110,7 +115,7 @@ public class Image extends HttpServlet {
 
         CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
 
-        List<Thread> threads = new ArrayList<>(requestCount);
+        List<Future> futures = new ArrayList<>();
 
         for (int i = 0; i < requestCount; i++) {
             inputParams.startY = i * imagePartHeight;
@@ -120,21 +125,16 @@ public class Image extends HttpServlet {
             try {
                 HttpPost post = new HttpPost(IMAGE_PART_URL);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
-                Thread thread = new ImagePartThread(client, post, renderParts);
-                threads.add(thread);
+                futures.add(executorService.submit(new ImagePartRunnable(client, post, renderParts)));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
 
-        threads.stream().filter(t -> t != null).forEach(Thread::start);
-
-        for (Thread t : threads) {
+        for (Future f : futures) {
             try {
-                if (t != null) {
-                    t.join();
-                }
-            } catch (InterruptedException e) {
+                f.get();
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
