@@ -33,10 +33,13 @@ public class ImagePart extends HttpServlet {
         String uuid = UUID.randomUUID().toString() + "  " + Thread.currentThread().getName() + "  " + Thread.currentThread();
         System.out.println("Request image: " + format.format(new Date(System.currentTimeMillis()))+ "  " + uuid);
         InputParams params = gson.fromJson(new InputStreamReader(request.getInputStream()), InputParams.class);
-        RenderPart renderPart = renderBean.render(params);
+//        RenderPart renderPart = renderBean.render(params);
+        RenderPart renderPart = params.renderImagePart();
         System.out.println("Request render ended: " + format.format(new Date(System.currentTimeMillis()))+ "  " + uuid);
         try (ObjectOutputStream oos = new ObjectOutputStream(response.getOutputStream())) {
+//            renderPart.writeToStream(oos);
             oos.writeObject(renderPart);
+            oos.flush();
         }
         System.out.println("Request stream ended: " + format.format(new Date(System.currentTimeMillis()))+ "  " + uuid);
     }

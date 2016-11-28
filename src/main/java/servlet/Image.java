@@ -115,7 +115,7 @@ public class Image extends HttpServlet {
 
         CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
 
-        List<Future> futures = new ArrayList<>();
+        List<Future> futures = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < requestCount; i++) {
             inputParams.startY = i * imagePartHeight;

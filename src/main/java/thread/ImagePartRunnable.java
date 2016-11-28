@@ -8,8 +8,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +48,12 @@ public class ImagePartRunnable implements Runnable {
                     }
 
                     System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+                } catch (StreamCorruptedException ex) {
+                    BufferedReader r = new BufferedReader(new InputStreamReader(entity.getContent()));
+                    String line;
+                    while ((line = r.readLine()) != null)
+                        System.out.println(line);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

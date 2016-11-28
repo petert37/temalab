@@ -1,6 +1,6 @@
 <resources>
     <Resource id="ImagePartExecutorService" type="ManagedExecutorService">
-        Core = 5
+        Core = 50
         Max = 100
         KeepAlive = 5 s
         Queue = 1000
