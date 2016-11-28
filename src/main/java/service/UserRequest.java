@@ -3,7 +3,7 @@ package service;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-@Path("")
+@Path("/request")
 public class UserRequest {
 
     @POST
