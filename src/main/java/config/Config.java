@@ -2,6 +2,7 @@ package config;
 
 public class Config {
 
+    public static final String SRV_URL = "http://preraytrace2.j.layershift.co.uk/preraytrace/rayimg";
     private String imageUrl;
     private String imagePartUrl;
     private int maxConnections;

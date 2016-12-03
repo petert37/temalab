@@ -35,6 +35,12 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.openjpa/openjpa -->
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+            <version>2.4.0</version>
+        </dependency>
 
     </dependencies>
 

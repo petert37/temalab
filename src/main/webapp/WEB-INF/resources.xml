@@ -7,4 +7,16 @@
         ThreadFactory = org.apache.openejb.threads.impl.ManagedThreadFactoryImpl
         Lazy = true
     </Resource>
+    <Resource id="myQCF" type="javax.jms.ConnectionFactory">
+        ResourceAdapter = Default JMS Resource Adapter
+        TransactionSupport = xa
+        PoolMaxSize = 10
+        PoolMinSize = 0
+        ConnectionMaxWaitTime = 5 seconds
+        ConnectionMaxIdleTime = 15 Minutes
+    </Resource>
+    <Resource id="myQueue" type="javax.jms.Queue">
+        # not set means id
+        destination =
+    </Resource>
 </resources>

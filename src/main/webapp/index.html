@@ -8,32 +8,50 @@
         xhr.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var json = JSON.parse(this.responseText);
-                alert(json["link"]);
-                document.getElementById("link").value = json["link"]
+                //  alert(json["link"]);
+                var dl = document.getElementById("links");
+                var createA = document.createElement('a');
+                var createAText = document.createTextNode(json["link"]);
+                createA.setAttribute('href', json["link"]);
+                createA.appendChild(createAText);
+                var dt = document.createElement("dt");
+                dt.appendChild(createA);
+                dl.appendChild(dt);
             }
         };
         function sayHello() {
 //            var url = "http://84.236.38.231:38801/request"
-            var url = "http://localhost:8088/request";
+            var url = "http://localhost:8088/rayimg";
             //              var url = "http://z.i42.hu:38801";
             //              var url = "http://preraytrace2.j.layershift.co.uk/preraytrace/Image";
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var data = document.getElementById("desription").value;
-            //     xhr.responseType = 'json';
             xhr.send(data);
         }
     </script>
+    <style>
+        th, td {
+            padding: 5px;
+            text-align: left;
+            vertical-align:top
+        }
+    </style>
 </head>
 <body>
 <header>
     <h1>Küldj kérést</h1>
 </header>
-<label for="desription">Json:</label>
-<br>
-<textarea id="desription" name="desription" cols="100" rows="30"></textarea>
-<br>
+<table >
+    <tr>
+        <th>Json:</th>
+        <th>Links</th>
+    </tr>
+    <tr>
+        <td><label for="desription"></label><textarea id="desription" name="desription" cols="100" rows="30"></textarea></td>
+        <td><dl id="links" style="list-style-type:none"></dl></td>
+    </tr>
+</table>
 <input type="button" onclick="sayHello()" value="Kuld" />
-<label id="link"></label>
 </body>
 </html>

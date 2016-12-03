@@ -10,7 +10,7 @@ public class Image {
     private long id;
 
     @Basic
-    private String link;
+    private String world;
 
     @Lob
     private byte[] png;
@@ -24,12 +24,12 @@ public class Image {
         this.id = id;
     }
 
-    public String getLink() {
-        return link;
+    public String getWorld() {
+        return world;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setWorld(String link) {
+        this.world = link;
     }
 
     public byte[] getPng() {
