@@ -1,1 +1,1 @@
-mvn install:install-file -Dfile=TemalabRayTracer.jar -DgroupId=hu.vkrissz -DartifactId=TemalabRayTracer -Dversion=1.0.2 -Dpackaging=jar -DlocalRepositoryPath=..\local-repo
+mvn install:install-file -Dfile=TemalabRayTracer.jar -DgroupId=hu.vkrissz -DartifactId=TemalabRayTracer -Dversion=1.0.3 -Dpackaging=jar -DlocalRepositoryPath=..\local-repo

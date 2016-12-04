@@ -18,7 +18,11 @@ import thread.ImagePartRunnable;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -63,6 +67,14 @@ public class Image extends HttpServlet {
         BufferedImage image = getImage(inputParams);
         response.setContentType("image/png");
         ImageIO.write(image, "PNG", response.getOutputStream());
+//        response.setContentType("image/jpeg");
+//        ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+//        ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+//        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//        jpgWriteParam.setCompressionQuality(1f);
+//        jpgWriter.setOutput(new MemoryCacheImageOutputStream(response.getOutputStream()));
+//        //better to use ImageOutputStream
+//        jpgWriter.write(null,new IIOImage(image, null, null), jpgWriteParam);
     }
 
     private void setupParameters() {
@@ -80,6 +92,7 @@ public class Image extends HttpServlet {
                 System.out.println("Config from url: " + config);
             }
         }
+//        IMAGE_DIVISION *= 2;
     }
 
     private Config getConfigFromUrl(String url) {
