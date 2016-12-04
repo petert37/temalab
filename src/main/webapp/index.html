@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>Kérés küldése</title>
     <script type="text/javascript">
         xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var json = JSON.parse(this.responseText);
-                //  alert(json["link"]);
                 var dl = document.getElementById("links");
                 var createA = document.createElement('a');
                 var createAText = document.createTextNode(json["link"]);
                 createA.setAttribute('href', json["link"]);
+                createA.setAttribute('target', "_blank");
                 createA.appendChild(createAText);
                 var dt = document.createElement("dt");
                 dt.appendChild(createA);
@@ -20,10 +20,7 @@
             }
         };
         function sayHello() {
-//            var url = "http://84.236.38.231:38801/request"
-            var url = "http://localhost:8088/rayimg";
-            //              var url = "http://z.i42.hu:38801";
-            //              var url = "http://preraytrace2.j.layershift.co.uk/preraytrace/Image";
+            var url = "/rayimg";
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var data = document.getElementById("desription").value;
@@ -34,7 +31,7 @@
         th, td {
             padding: 5px;
             text-align: left;
-            vertical-align:top
+            vertical-align: top
         }
     </style>
 </head>
@@ -42,16 +39,19 @@
 <header>
     <h1>Küldj kérést</h1>
 </header>
-<table >
+<table>
     <tr>
         <th>Json:</th>
         <th>Links</th>
     </tr>
     <tr>
-        <td><label for="desription"></label><textarea id="desription" name="desription" cols="100" rows="30"></textarea></td>
-        <td><dl id="links" style="list-style-type:none"></dl></td>
+        <td><label for="desription"></label><textarea id="desription" name="desription" cols="100" rows="30"></textarea>
+        </td>
+        <td>
+            <dl id="links" style="list-style-type:none"></dl>
+        </td>
     </tr>
 </table>
-<input type="button" onclick="sayHello()" value="Kuld" />
+<input type="button" onclick="sayHello()" value="Kuld"/>
 </body>
 </html>

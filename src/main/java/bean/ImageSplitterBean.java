@@ -1,7 +1,8 @@
-package servlet;
+package bean;
 
 import com.google.gson.Gson;
 import config.Config;
+import entity.Image;
 import hu.vkrissz.bme.raytracer.RayTracer;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import hu.vkrissz.bme.raytracer.model.RenderPart;
@@ -16,15 +17,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import thread.ImagePartRunnable;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import javax.ejb.MessageDriven;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -34,35 +40,58 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-@WebServlet("/Image")
-public class Image extends HttpServlet {
 
-    public static final boolean REMOTE_CONFIG = true;
+@Asynchronous
+@MessageDriven
+public class ImageSplitterBean implements MessageListener {
 
-    public static int MAX_CONNECTIONS = 100;
-    public static int IMAGE_DIVISION = 300;
-    public static String IMAGE_PART_URL = "http://localhost:8080/ImagePart";
 
-    //    public static final String CONFIG_URL = "http://pastebin.com/raw/uSJbJ7AX"; //localhost
-    public static final String CONFIG_URL = "http://pastebin.com/raw/8D25bRdg";
-
-    @Resource(name = "ImagePartExecutorService")
-    ManagedExecutorService executorService;
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.getWriter().write("OK");
+    @PostConstruct
+    public void ads() {
+        System.out.println("construct_onMessage");
     }
 
+    @PreDestroy
+    public void adsd() {
+        System.out.println("destroy_onMessage");
+    }
+
+    private static final boolean REMOTE_CONFIG = true;
+
+    private static int MAX_CONNECTIONS = 100;
+    private static int IMAGE_DIVISION = 300;
+    private static String IMAGE_PART_URL = "http://localhost:8080/ImagePart";
+
+    //    public static final String CONFIG_URL = "http://pastebin.com/raw/uSJbJ7AX"; //localhost
+    private static final String CONFIG_URL = "http://pastebin.com/raw/8D25bRdg";
+
+    @Resource(name = "ImagePartExecutorService")
+    private ManagedExecutorService executorService;
+
+    @EJB
+    private OperatorBean operatorBean;
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        setupParameters();
+    public void onMessage(Message message) {
+        try {
+            TextMessage textMessage = (TextMessage) message;
+            long imgID = Long.parseLong(textMessage.getText());
+            Image image = operatorBean.loadImage(imgID);
+            System.out.println("dolgozok... " + image.getId());
 
-        InputParams inputParams = new Gson().fromJson(request.getReader(), InputParams.class);
+            setupParameters();
+            InputParams inputParams = new Gson().fromJson(image.getWorld(), InputParams.class);
 
-        BufferedImage image = getImage(inputParams);
-        response.setContentType("image/png");
-        ImageIO.write(image, "PNG", response.getOutputStream());
+            BufferedImage bfImage = getImage(inputParams);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bfImage, "png", baos);
+            baos.flush();
+            image.setPng(baos.toByteArray());
+            baos.close();
+            System.out.println("FINISH: " + image.getId());
+        } catch (JMSException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupParameters() {
@@ -141,6 +170,4 @@ public class Image extends HttpServlet {
 
         return RayTracer.compose(inputParams.imageWidth, inputParams.imageHeight, renderParts);
     }
-
-
 }

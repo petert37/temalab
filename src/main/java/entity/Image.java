@@ -1,4 +1,4 @@
-package model;
+package entity;
 
 import javax.persistence.*;
 
@@ -9,19 +9,14 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Basic
+    @Column(columnDefinition="TEXT")
     private String world;
 
     @Lob
     private byte[] png;
 
-
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getWorld() {

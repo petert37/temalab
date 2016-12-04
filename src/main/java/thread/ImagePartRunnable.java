@@ -11,7 +11,6 @@ import org.apache.http.protocol.HttpContext;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class ImagePartRunnable implements Runnable {
@@ -29,35 +28,31 @@ public class ImagePartRunnable implements Runnable {
         this.httpPost = httpPost;
         this.list = list;
         this.context = new BasicHttpContext();
-        System.out.println("Render part thread " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+//        System.out.println("Render part thread " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
     }
 
     @Override
     public void run() {
 
-        System.out.println("Render part thread RUN " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+//        System.out.println("Render part thread RUN " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
         try (CloseableHttpResponse response = client.execute(httpPost, context)) {
-            System.out.println("Render part READ " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+//            System.out.println("Render part READ " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
                 try (ObjectInputStream ois = new ObjectInputStream(entity.getContent())) {
-//                    RenderPart renderPart = new RenderPart(entity.getContent());
                     RenderPart renderPart = (RenderPart) ois.readObject();
                     if (renderPart != null) {
                         list.add(renderPart);
                     }
 
-                    System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+//                    System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }

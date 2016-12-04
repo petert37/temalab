@@ -15,8 +15,4 @@
         ConnectionMaxWaitTime = 5 seconds
         ConnectionMaxIdleTime = 15 Minutes
     </Resource>
-    <Resource id="myQueue" type="javax.jms.Queue">
-        # not set means id
-        destination =
-    </Resource>
 </resources>

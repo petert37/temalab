@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
-
-    <persistence-unit name="PersistenceUnit" transaction-type="JTA">
+    <persistence-unit name="PersistenceUnit">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <jta-data-source>jdbc/db01</jta-data-source>
-        <class>model.Image</class>
+        <jta-data-source>jdbc/dbtemalab</jta-data-source>
+        <class>entity.Image</class>
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
         </properties>
