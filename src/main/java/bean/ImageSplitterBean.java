@@ -24,7 +24,11 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
 import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -144,7 +148,7 @@ public class ImageSplitterBean implements MessageListener {
 
         CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
 
-        List<Future> futures = new ArrayList<>();
+        List<Future> futures = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < requestCount; i++) {
             inputParams.startY = i * imagePartHeight;

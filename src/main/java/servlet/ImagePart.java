@@ -34,9 +34,11 @@ public class ImagePart extends HttpServlet {
         System.out.println("Request image: " + format.format(new Date(System.currentTimeMillis())) + "  " + uuid);
         InputParams params = gson.fromJson(new InputStreamReader(request.getInputStream()), InputParams.class);
         RenderPart renderPart = renderBean.render(params);
-        System.out.println("Request render ended: " + format.format(new Date(System.currentTimeMillis())) + "  " + uuid);
+//        RenderPart renderPart = params.renderImagePart();
+        System.out.println("Request render ended: " + format.format(new Date(System.currentTimeMillis()))+ "  " + uuid);
         try (ObjectOutputStream oos = new ObjectOutputStream(response.getOutputStream())) {
             oos.writeObject(renderPart);
+            oos.flush();
         }
         System.out.println("Request stream ended: " + format.format(new Date(System.currentTimeMillis())) + "  " + uuid);
     }
