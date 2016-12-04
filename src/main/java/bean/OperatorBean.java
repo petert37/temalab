@@ -5,6 +5,7 @@ import facade.ImageFacade;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import java.util.List;
 
 @Stateless
 public class OperatorBean {
@@ -18,5 +19,9 @@ public class OperatorBean {
 
     public Image loadImage(long imgID) {
         return imageFacade.find(imgID);
+    }
+
+    public List<Image> findAll() {
+        return imageFacade.findAll();
     }
 }

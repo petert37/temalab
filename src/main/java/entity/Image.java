@@ -15,6 +15,9 @@ public class Image {
     @Lob
     private byte[] png;
 
+    @Lob
+    private byte[] preview;
+
     public long getId() {
         return id;
     }
@@ -33,5 +36,13 @@ public class Image {
 
     public void setPng(byte[] png) {
         this.png = png;
+    }
+
+    public byte[] getPreview() {
+        return preview;
+    }
+
+    public void setPreview(byte[] preview) {
+        this.preview = preview;
     }
 }
