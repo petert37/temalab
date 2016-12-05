@@ -5,6 +5,7 @@ import bean.OperatorBean;
 import com.google.gson.Gson;
 import config.Config;
 import entity.Image;
+import entity.ImageUrl;
 import model.PreviewImage;
 
 import javax.ejb.EJB;
@@ -12,6 +13,7 @@ import javax.jms.JMSException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Path("/rayimg")
 public class UserRequest {
@@ -36,10 +38,10 @@ public class UserRequest {
     @Path("/allImg")
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllImage() {
-        ArrayList<Image> images = new ArrayList<>(operatorBean.findAll());
+        ArrayList<ImageUrl> images = new ArrayList<>(operatorBean.findAllImageUrls());
         ArrayList<PreviewImage> pImages = new ArrayList<>();
-        for (Image i : images) {
-            pImages.add(new PreviewImage(i.getId(), i.getPreview(), Config.SRV_URL + "/" + i.getId()));
+        for (ImageUrl i : images) {
+            pImages.add(new PreviewImage(i.getUid()));
         }
         return new Gson().toJson(pImages);
     }
@@ -53,10 +55,11 @@ public class UserRequest {
             Image image = new Image();
             image.setWorld(inputJsonObj);
             operatorBean.storeImage(image);
-
+            ImageUrl imageUrl = new ImageUrl(UUID.randomUUID().toString(), image);
+            operatorBean.storeImageUrl(imageUrl);
             imageBean.putInMS(image.getId());
 
-            response = "{\"link\":\"" + Config.SRV_URL + "/" + image.getId() + "\"}";
+            response = "{\"link\":\"/img?id=" + imageUrl.getUid() + "\"}";
         } catch (JMSException e) {
             e.printStackTrace();
         }

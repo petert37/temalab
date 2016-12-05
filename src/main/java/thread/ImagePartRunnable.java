@@ -32,31 +32,38 @@ public class ImagePartRunnable implements Runnable {
 
     @Override
     public void run() {
-
-//        System.out.println("Render part thread RUN " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
-        try (CloseableHttpResponse response = client.execute(httpPost, context)) {
-//            System.out.println("Render part READ " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                try (ObjectInputStream ois = new ObjectInputStream(entity.getContent())) {
-                    RenderPart renderPart = (RenderPart) ois.readObject();
-                    if (renderPart != null) {
-                        list.add(renderPart);
-                    }
-//                    System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
-                } catch (StreamCorruptedException ex) {
-                    BufferedReader r = new BufferedReader(new InputStreamReader(entity.getContent()));
-                    String line;
-                    while ((line = r.readLine()) != null)
-                        System.out.println(line);
-
-                } catch (Exception e) {
+        int tries = 0;
+        while (tries < 30) {
+            if(tries != 0){
+                try {
+                    Thread.sleep(tries * 5000);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+//        System.out.println("Render part thread RUN " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+            try (CloseableHttpResponse response = client.execute(httpPost, context)) {
+//            System.out.println("Render part READ " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+                HttpEntity entity = response.getEntity();
+
+                if (entity != null) {
+                    try (ObjectInputStream ois = new ObjectInputStream(entity.getContent())) {
+                        RenderPart renderPart = (RenderPart) ois.readObject();
+                        if (renderPart != null) {
+                            list.add(renderPart);
+                            return;
+                        }
+//                    System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
+                    } catch (StreamCorruptedException ex) {
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            tries++;
         }
     }
 }
