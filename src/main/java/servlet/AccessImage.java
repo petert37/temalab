@@ -9,6 +9,8 @@ import javax.servlet.annotation.WebServlet;
 public class AccessImage extends BaseImageServlet {
     @Override
     protected byte[] getImage(ImageDescription image) {
-        return image.getImage().getData();
+        if (image.getImage() != null)
+            return image.getImage().getData();
+        return null;
     }
 }

@@ -11,6 +11,8 @@ import javax.servlet.annotation.WebServlet;
 public class AccessImageThumb extends BaseImageServlet {
     @Override
     protected byte[] getImage(ImageDescription image) {
-        return image.getThumbnail().getData();
+        if (image.getImage() != null)
+            return image.getThumbnail().getData();
+        return null;
     }
 }
