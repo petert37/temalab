@@ -1,9 +1,9 @@
 <resources>
     <Resource id="ImagePartExecutorService" type="ManagedExecutorService">
-        Core = 50
-        Max = 100
+        Core = 100
+        Max = 200
         KeepAlive = 5 s
-        Queue = 1000
+        Queue = 100000
         ThreadFactory = org.apache.openejb.threads.impl.ManagedThreadFactoryImpl
         Lazy = true
     </Resource>

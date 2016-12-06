@@ -1,22 +1,19 @@
 package facade;
 
-import entity.ImageUrl;
+import entity.ImageDescription;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-/**
- * Created by vkrissz on 2016.12.04..
- */
 @Stateless
-public class ImageUrlFacade extends AbstractFacade<ImageUrl> {
+public class ImageDescriptionFacade extends AbstractFacade<ImageDescription> {
 
     @PersistenceContext
     private EntityManager em;
 
-    public ImageUrlFacade() {
-        super(ImageUrl.class);
+    public ImageDescriptionFacade() {
+        super(ImageDescription.class);
     }
 
     @Override

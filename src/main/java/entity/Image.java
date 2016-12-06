@@ -2,47 +2,37 @@ package entity;
 
 import javax.persistence.*;
 
+/**
+ * Created by vkrissz on 2016.12.06..
+ */
 @Entity
 public class Image {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Column(columnDefinition="TEXT")
-    private String world;
-
     @Lob
-    private byte[] png;
+    private byte[] data;
 
-    @Lob
-    private byte[] preview;
+    public Image() {
+    }
+
+    public Image(byte[] data) {
+        this.data = data;
+    }
 
     public long getId() {
         return id;
     }
 
-    public String getWorld() {
-        return world;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public void setWorld(String link) {
-        this.world = link;
+    public byte[] getData() {
+        return data;
     }
 
-    public byte[] getPng() {
-        return png;
-    }
-
-    public void setPng(byte[] png) {
-        this.png = png;
-    }
-
-    public byte[] getPreview() {
-        return preview;
-    }
-
-    public void setPreview(byte[] preview) {
-        this.preview = preview;
+    public void setData(byte[] data) {
+        this.data = data;
     }
 }

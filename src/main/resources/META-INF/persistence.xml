@@ -3,7 +3,7 @@
     <persistence-unit name="PersistenceUnit">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
         <jta-data-source>jdbc/dbtemalab</jta-data-source>
-        <class>entity.Image</class>
+        <class>entity.ImageDescription</class>
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
         </properties>

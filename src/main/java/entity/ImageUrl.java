@@ -2,7 +2,6 @@ package entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 /**
@@ -15,9 +14,9 @@ public class ImageUrl {
     private String uid;
 
     @OneToOne
-    private Image image;
+    private ImageDescription image;
 
-    public ImageUrl(String uid, Image image) {
+    public ImageUrl(String uid, ImageDescription image) {
         this.uid = uid;
         this.image = image;
     }
@@ -29,7 +28,7 @@ public class ImageUrl {
         return uid;
     }
 
-    public Image getImage() {
+    public ImageDescription getImage() {
         return image;
     }
 }

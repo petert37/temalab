@@ -11,6 +11,7 @@ import org.apache.http.protocol.HttpContext;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Random;
 
 public class ImagePartRunnable implements Runnable {
 
@@ -36,7 +37,7 @@ public class ImagePartRunnable implements Runnable {
         while (tries < 30) {
             if(tries != 0){
                 try {
-                    Thread.sleep(tries * 5000);
+                    Thread.sleep(tries * 5000 + new Random().nextInt(5000));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

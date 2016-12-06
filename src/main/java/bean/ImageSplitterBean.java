@@ -2,6 +2,7 @@ package bean;
 
 import com.google.gson.Gson;
 import config.Config;
+import entity.*;
 import entity.Image;
 import hu.vkrissz.bme.raytracer.RayTracer;
 import hu.vkrissz.bme.raytracer.model.InputParams;
@@ -15,14 +16,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import thread.ImagePartRunnable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -78,7 +77,7 @@ public class ImageSplitterBean implements MessageListener {
         try {
             TextMessage textMessage = (TextMessage) message;
             long imgID = Long.parseLong(textMessage.getText());
-            Image image = operatorBean.loadImage(imgID);
+            ImageDescription image = operatorBean.loadImageDescription(imgID);
             System.out.println("dolgozok... " + image.getId());
 
             setupParameters();
@@ -86,9 +85,16 @@ public class ImageSplitterBean implements MessageListener {
 
             BufferedImage bfImage = getImage(inputParams);
             double scale = 200.0 / (double) Math.max(bfImage.getWidth(), bfImage.getHeight());
-            BufferedImage thumbnail = Thumbnailator.createThumbnail(bfImage, (int)Math.round(scale * bfImage.getWidth()), (int)Math.round(scale * bfImage.getHeight()));
-            image.setPng(imageToBytes(bfImage));
-            image.setPreview(imageToBytes(thumbnail));
+            BufferedImage thumbnail = Thumbnailator.createThumbnail(bfImage, (int) Math.round(scale * bfImage.getWidth()), (int) Math.round(scale * bfImage.getHeight()));
+            byte[] fullImageBytes = imageToBytes(bfImage);
+            Image fullImage = new Image(fullImageBytes);
+            operatorBean.storeImage(fullImage);
+            byte[] thumbImageBytes = imageToBytes(thumbnail);
+            Image thumbnailImage = new Image(thumbImageBytes);
+            operatorBean.storeImage(thumbnailImage);
+            image = operatorBean.loadImageDescription(imgID);
+            image.setImage(fullImage);
+            image.setThumbnail(thumbnailImage);
             System.out.println("FINISH: " + image.getId());
         } catch (JMSException e) {
             e.printStackTrace();

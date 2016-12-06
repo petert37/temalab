@@ -3,8 +3,7 @@ package service;
 import bean.ImageBean;
 import bean.OperatorBean;
 import com.google.gson.Gson;
-import config.Config;
-import entity.Image;
+import entity.ImageDescription;
 import entity.ImageUrl;
 import model.PreviewImage;
 
@@ -24,15 +23,15 @@ public class UserRequest {
     @EJB
     private ImageBean imageBean;
 
-    @GET
-    @Path("{imgID}")
-    @Produces("image/png")
-    public byte[] getImage(@PathParam("imgID") long imgID) {
-        Image image = operatorBean.loadImage(imgID);
-        if (image == null) return "not exist".getBytes();
-        if (image.getPng() == null) return "in progress".getBytes();
-        return image.getPng();
-    }
+//    @GET
+//    @Path("{imgID}")
+//    @Produces("image/png")
+//    public byte[] getImage(@PathParam("imgID") long imgID) {
+//        ImageDescription image = operatorBean.loadImageDescription(imgID);
+//        if (image == null) return "not exist".getBytes();
+//        if (image.getPng() == null) return "in progress".getBytes();
+//        return image.getPng();
+//    }
 
     @GET
     @Path("/allImg")
@@ -52,14 +51,14 @@ public class UserRequest {
         String response = "{\"link\":\"valami_hiba_van_az_éterben...\"}";
 
         try {
-            Image image = new Image();
+            ImageDescription image = new ImageDescription();
             image.setWorld(inputJsonObj);
-            operatorBean.storeImage(image);
+            operatorBean.storeImageDescription(image);
             ImageUrl imageUrl = new ImageUrl(UUID.randomUUID().toString(), image);
             operatorBean.storeImageUrl(imageUrl);
             imageBean.putInMS(image.getId());
 
-            response = "{\"link\":\"/img?id=" + imageUrl.getUid() + "\"}";
+            response = "{\"link\":\"/img/" + imageUrl.getUid() + "\"}";
         } catch (JMSException e) {
             e.printStackTrace();
         }
