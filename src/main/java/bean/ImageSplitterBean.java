@@ -37,14 +37,10 @@ import java.util.concurrent.Future;
 @Stateless
 public class ImageSplitterBean {
 
-    private static final boolean REMOTE_CONFIG = true;
-
     private static int MAX_CONNECTIONS = 100;
-    private static int IMAGE_DIVISION = 300;
-    private static String IMAGE_PART_URL = "http://localhost:8080/ImagePart";
 
-    //    public static final String CONFIG_URL = "http://pastebin.com/raw/uSJbJ7AX"; //localhost
-    private static final String CONFIG_URL = "http://pastebin.com/raw/8D25bRdg";
+    @Resource(name = "ServerUrl")
+    private String serverUrl;
 
     @Resource(name = "ImagePartExecutorService")
     private ManagedExecutorService executorService;
@@ -87,23 +83,6 @@ public class ImageSplitterBean {
         return gc.createCompatibleImage(w, h);
     }
 
-    public void setupParameters() {
-        MAX_CONNECTIONS = 100;
-        IMAGE_DIVISION = 300;
-        IMAGE_PART_URL = "http://localhost:8080/ImagePart";
-//        IMAGE_PART_URL = "http://raytrace.j.layershift.co.uk/raytrace/ImagePart";
-
-        if (REMOTE_CONFIG) {
-            Config config = getConfigFromUrl(CONFIG_URL);
-            if (config != null) {
-                MAX_CONNECTIONS = config.getMaxConnections();
-                IMAGE_DIVISION = config.getImageDivision();
-                IMAGE_PART_URL = config.getImagePartUrl();
-                System.out.println("Config from url: " + config);
-            }
-        }
-    }
-
     public Config getConfigFromUrl(String url) {
         try {
             HttpClient client = HttpClientBuilder.create().build();
@@ -117,8 +96,6 @@ public class ImageSplitterBean {
     }
 
     public BufferedImage getImage(InputParams inputParams) {
-
-        setupParameters();
 
         int imagePartHeight = Math.max(1, 50000 / inputParams.imageWidth);
         int requestCount = inputParams.imageHeight / imagePartHeight;
@@ -154,7 +131,7 @@ public class ImageSplitterBean {
             inputParams.height = Math.min(imagePartHeight, remainingImageHeight);
 
             try {
-                HttpPost post = new HttpPost(IMAGE_PART_URL);
+                HttpPost post = new HttpPost(serverUrl);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
                 futures.add(executorService.submit(new ImagePartRunnable(client, post, renderParts)));
             } catch (UnsupportedEncodingException e) {
