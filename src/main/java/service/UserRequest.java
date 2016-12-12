@@ -9,7 +9,10 @@ import model.PreviewImage;
 
 import javax.ejb.EJB;
 import javax.jms.JMSException;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -26,7 +29,7 @@ public class UserRequest {
 //    @GET
 //    @Path("{imgID}")
 //    @Produces("image/png")
-//    public byte[] getImage(@PathParam("imgID") long imgID) {
+//    public byte[] getImageDescription(@PathParam("imgID") long imgID) {
 //        ImageDescription image = operatorBean.loadImageDescription(imgID);
 //        if (image == null) return "not exist".getBytes();
 //        if (image.getPng() == null) return "in progress".getBytes();

@@ -2,8 +2,8 @@ package bean;
 
 import com.google.gson.Gson;
 import config.Config;
-import entity.*;
 import entity.Image;
+import entity.ImageDescription;
 import hu.vkrissz.bme.raytracer.RayTracer;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import hu.vkrissz.bme.raytracer.model.RenderPart;
@@ -77,7 +77,7 @@ public class ImageSplitterBean implements MessageListener {
         try {
             TextMessage textMessage = (TextMessage) message;
             long imgID = Long.parseLong(textMessage.getText());
-            ImageDescription image = operatorBean.loadImageDescription(imgID);
+            ImageDescription image = operatorBean.loadImageDescriptionWithWorld(imgID);
             System.out.println("dolgozok... " + image.getId());
 
             setupParameters();

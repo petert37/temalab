@@ -1,6 +1,7 @@
 package servlet;
 
 import entity.ImageDescription;
+import entity.ImageUrl;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -12,5 +13,10 @@ public class AccessImage extends BaseImageServlet {
         if (image.getImage() != null)
             return image.getImage().getData();
         return null;
+    }
+
+    @Override
+    protected ImageUrl loadImageUrl(String id) {
+        return operatorBean.loadImageUrlWithImage(id);
     }
 }

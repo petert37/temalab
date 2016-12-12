@@ -1,6 +1,7 @@
 package servlet;
 
 import entity.ImageDescription;
+import entity.ImageUrl;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -11,8 +12,13 @@ import javax.servlet.annotation.WebServlet;
 public class AccessImageThumb extends BaseImageServlet {
     @Override
     protected byte[] getImage(ImageDescription image) {
-        if (image.getImage() != null)
+        if (image.getThumbnail() != null)
             return image.getThumbnail().getData();
         return null;
+    }
+
+    @Override
+    protected ImageUrl loadImageUrl(String id) {
+        return operatorBean.loadImageUrlWithThumbnail(id);
     }
 }

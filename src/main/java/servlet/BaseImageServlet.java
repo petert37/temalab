@@ -16,18 +16,18 @@ import java.io.IOException;
  */
 public abstract class BaseImageServlet extends HttpServlet {
     @EJB
-    private OperatorBean operatorBean;
+    protected OperatorBean operatorBean;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
         if (pathInfo != null && pathInfo.length() > 1) {
             String id = request.getPathInfo().substring(1);
-            ImageUrl imageUrl = operatorBean.loadImageUrlWithImage(id);
-            if (imageUrl == null || imageUrl.getImage() == null) {
+            ImageUrl imageUrl = loadImageUrl(id);
+            if (imageUrl == null || imageUrl.getImageDescription() == null) {
                 request.getRequestDispatcher("/noMatchingImage.html").forward(request, response);
             } else {
-                byte[] bytes = getImage(imageUrl.getImage());
+                byte[] bytes = getImage(imageUrl.getImageDescription());
                 if (bytes != null) {
                     response.setContentType("image/png");
                     response.getOutputStream().write(bytes);
@@ -42,4 +42,6 @@ public abstract class BaseImageServlet extends HttpServlet {
     }
 
     protected abstract byte[] getImage(ImageDescription image);
+
+    protected abstract ImageUrl loadImageUrl(String id);
 }

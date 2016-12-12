@@ -31,6 +31,14 @@ public class OperatorBean {
         return imageDescriptionFacade.find(imgID);
     }
 
+
+    public ImageDescription loadImageDescriptionWithWorld(long imgID) {
+        ImageDescription imageDescription = loadImageDescription(imgID);
+        if (imageDescription != null)
+            imageDescription.getWorld();
+        return imageDescription;
+    }
+
     public void storeImage(Image image) {
         imageFacade.create(image);
     }
@@ -56,10 +64,17 @@ public class OperatorBean {
     }
 
     public ImageUrl loadImageUrlWithImage(String uid) {
-        ImageUrl url = imageUrlFacade.find(uid);
-        if (url != null && url.getImage() != null) {
-            url.getImage().getImage();
-            url.getImage().getThumbnail();
+        ImageUrl url = loadImageUrl(uid);
+        if (url != null && url.getImageDescription() != null) {
+            url.getImageDescription().getImage();
+        }
+        return url;
+    }
+
+    public ImageUrl loadImageUrlWithThumbnail(String uid) {
+        ImageUrl url = loadImageUrl(uid);
+        if (url != null && url.getImageDescription() != null) {
+            url.getImageDescription().getThumbnail();
         }
         return url;
     }

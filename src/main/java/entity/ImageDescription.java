@@ -9,6 +9,7 @@ public class ImageDescription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition="TEXT")
     private String world;
 
@@ -43,7 +44,6 @@ public class ImageDescription {
     }
 
     public Image getThumbnail() {
-
         return thumbnail;
     }
 

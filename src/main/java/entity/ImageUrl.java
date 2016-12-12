@@ -28,7 +28,7 @@ public class ImageUrl {
         return uid;
     }
 
-    public ImageDescription getImage() {
+    public ImageDescription getImageDescription() {
         return image;
     }
 }
