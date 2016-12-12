@@ -23,8 +23,18 @@
             var url = "/rayimg";
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            var data = document.getElementById("desription").value;
+            var data = document.getElementById("description").value;
             xhr.send(data);
+        }
+        function loadDemo() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("description").value = this.responseText;
+                }
+            };
+            xhttp.open("GET", "demo.json", true);
+            xhttp.send();
         }
     </script>
     <style>
@@ -45,7 +55,7 @@
         <th>Links</th>
     </tr>
     <tr>
-        <td><label for="desription"></label><textarea id="desription" name="desription" cols="100" rows="30"></textarea>
+        <td><label for="description"></label><textarea id="description" name="description" cols="100" rows="30"></textarea>
         </td>
         <td>
             <dl id="links" style="list-style-type:none"></dl>
@@ -53,5 +63,6 @@
     </tr>
 </table>
 <input type="button" onclick="sayHello()" value="Kuld"/>
+<input type="button" onclick="loadDemo()" value="Demo">
 </body>
 </html>
