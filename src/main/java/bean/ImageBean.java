@@ -16,7 +16,7 @@ public class ImageBean {
     private MessageProducer messageProducer;
     private QueueSession queueSession;
 
-    @Resource(name = "ImageSplitterBean")
+    @Resource(name = "ImageSplitterMessageBean")
     private Queue questionQueue;
 
     @PostConstruct

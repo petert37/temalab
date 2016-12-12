@@ -2,12 +2,9 @@ package bean;
 
 import com.google.gson.Gson;
 import config.Config;
-import entity.Image;
-import entity.ImageDescription;
 import hu.vkrissz.bme.raytracer.RayTracer;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import hu.vkrissz.bme.raytracer.model.RenderPart;
-import net.coobird.thumbnailator.Thumbnailator;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -19,17 +16,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import thread.ImagePartRunnable;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
+import javax.ejb.Stateless;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.imageio.ImageIO;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -43,19 +34,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-@MessageDriven
-public class ImageSplitterBean implements MessageListener {
-
-
-    @PostConstruct
-    public void ads() {
-        System.out.println("construct_onMessage");
-    }
-
-    @PreDestroy
-    public void adsd() {
-        System.out.println("destroy_onMessage");
-    }
+@Stateless
+public class ImageSplitterBean {
 
     private static final boolean REMOTE_CONFIG = true;
 
@@ -72,36 +52,8 @@ public class ImageSplitterBean implements MessageListener {
     @EJB
     private OperatorBean operatorBean;
 
-    @Override
-    public void onMessage(Message message) {
-        try {
-            TextMessage textMessage = (TextMessage) message;
-            long imgID = Long.parseLong(textMessage.getText());
-            ImageDescription image = operatorBean.loadImageDescriptionWithWorld(imgID);
-            System.out.println("dolgozok... " + image.getId());
 
-            setupParameters();
-            InputParams inputParams = new Gson().fromJson(image.getWorld(), InputParams.class);
-
-            BufferedImage bfImage = getImage(inputParams);
-            double scale = 200.0 / (double) Math.max(bfImage.getWidth(), bfImage.getHeight());
-            BufferedImage thumbnail = Thumbnailator.createThumbnail(bfImage, (int) Math.round(scale * bfImage.getWidth()), (int) Math.round(scale * bfImage.getHeight()));
-            byte[] fullImageBytes = imageToBytes(bfImage);
-            Image fullImage = new Image(fullImageBytes);
-            operatorBean.storeImage(fullImage);
-            byte[] thumbImageBytes = imageToBytes(thumbnail);
-            Image thumbnailImage = new Image(thumbImageBytes);
-            operatorBean.storeImage(thumbnailImage);
-            image = operatorBean.loadImageDescription(imgID);
-            image.setImage(fullImage);
-            image.setThumbnail(thumbnailImage);
-            System.out.println("FINISH: " + image.getId());
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private byte[] imageToBytes(BufferedImage image) {
+    public byte[] imageToBytes(BufferedImage image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             ImageIO.write(image, "png", baos);
@@ -115,7 +67,7 @@ public class ImageSplitterBean implements MessageListener {
         return null;
     }
 
-    private BufferedImage scale(BufferedImage source, double ratio) {
+    public BufferedImage scale(BufferedImage source, double ratio) {
         int w = (int) (source.getWidth() * ratio);
         int h = (int) (source.getHeight() * ratio);
         BufferedImage bi = getCompatibleImage(w, h);
@@ -128,14 +80,14 @@ public class ImageSplitterBean implements MessageListener {
         return bi;
     }
 
-    private BufferedImage getCompatibleImage(int w, int h) {
+    public BufferedImage getCompatibleImage(int w, int h) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         return gc.createCompatibleImage(w, h);
     }
 
-    private void setupParameters() {
+    public void setupParameters() {
         MAX_CONNECTIONS = 100;
         IMAGE_DIVISION = 300;
         IMAGE_PART_URL = "http://localhost:8080/ImagePart";
@@ -144,7 +96,7 @@ public class ImageSplitterBean implements MessageListener {
         if (REMOTE_CONFIG) {
             Config config = getConfigFromUrl(CONFIG_URL);
             if (config != null) {
-                //MAX_CONNECTIONS = config.getMaxConnections();
+                MAX_CONNECTIONS = config.getMaxConnections();
                 IMAGE_DIVISION = config.getImageDivision();
                 IMAGE_PART_URL = config.getImagePartUrl();
                 System.out.println("Config from url: " + config);
@@ -152,7 +104,7 @@ public class ImageSplitterBean implements MessageListener {
         }
     }
 
-    private Config getConfigFromUrl(String url) {
+    public Config getConfigFromUrl(String url) {
         try {
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet request = new HttpGet(url);
@@ -164,7 +116,9 @@ public class ImageSplitterBean implements MessageListener {
         return null;
     }
 
-    private BufferedImage getImage(InputParams inputParams) {
+    public BufferedImage getImage(InputParams inputParams) {
+
+        setupParameters();
 
         int imagePartHeight = Math.max(1, 50000 / inputParams.imageWidth);
         int requestCount = inputParams.imageHeight / imagePartHeight;
