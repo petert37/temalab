@@ -55,6 +55,10 @@ public class OperatorBean {
         return imageUrlFacade.findAll();
     }
 
+    public List<ImageUrl> findAllDoneImageUrls() {
+        return imageUrlFacade.findAllDone();
+    }
+
     public void storeImageUrl(ImageUrl imageUrl) {
         imageUrlFacade.create(imageUrl);
     }

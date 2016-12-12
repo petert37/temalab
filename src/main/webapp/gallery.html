@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Galéria</title>
+    <script type="text/javascript">
+        xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var json = JSON.parse(this.responseText);
+                var jsonLength = json.length;
+
+                var imageTable = document.getElementById("images");
+
+                for (var i = 0; i < jsonLength; i++) {
+                    var uid = json[i].uid;
+                    var createA = document.createElement('a');
+                    var createAContent = document.createElement("img");
+                    var imageHolder = document.createElement("div");
+
+                    imageHolder.setAttribute('id', 'imageholder');
+                    createAContent.setAttribute('src', '/thumb/' + uid);
+                    createA.setAttribute('href', '/img/' + uid);
+
+
+                    var tr = document.createElement("tr");
+                    var td = document.createElement("td");
+
+                    createA.appendChild(createAContent);
+                    imageHolder.appendChild(createA);
+                    td.appendChild(imageHolder);
+                    tr.appendChild(td);
+                    imageTable.appendChild(tr);
+                }
+            }
+        };
+        function loadGallery() {
+            var url = "/rayimg/allImg";
+            xhr.open("GET", url, true);
+//            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.send();
+        }
+        window.onload = loadGallery();
+    </script>
+    <style>
+        th, td {
+            padding: 5px;
+            text-align: left;
+            vertical-align: top
+        }
+
+        #imageholder {
+            height: 200px;
+            width: 200px;
+            overflow: hidden;
+        }
+
+        img {
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<table id="images"></table>
+</body>
+</html>

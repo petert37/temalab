@@ -40,7 +40,7 @@ public class UserRequest {
     @Path("/allImg")
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllImage() {
-        ArrayList<ImageUrl> images = new ArrayList<>(operatorBean.findAllImageUrls());
+        ArrayList<ImageUrl> images = new ArrayList<>(operatorBean.findAllDoneImageUrls());
         ArrayList<PreviewImage> pImages = new ArrayList<>();
         for (ImageUrl i : images) {
             pImages.add(new PreviewImage(i.getUid()));
