@@ -1,6 +1,7 @@
 package thread;
 
 import hu.vkrissz.bme.raytracer.model.RenderPart;
+import measure.ElapsedTime;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -8,7 +9,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Random;
@@ -42,6 +45,7 @@ public class ImagePartRunnable implements Runnable {
                     e.printStackTrace();
                 }
             }
+            ElapsedTime imagePartTime = new ElapsedTime(ElapsedTime.IMAGE_PART_RESPONSE);
 //        System.out.println("Render part thread RUN " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
             try (CloseableHttpResponse response = client.execute(httpPost, context)) {
 //            System.out.println("Render part READ " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);
@@ -52,6 +56,7 @@ public class ImagePartRunnable implements Runnable {
                         RenderPart renderPart = (RenderPart) ois.readObject();
                         if (renderPart != null) {
                             list.add(renderPart);
+                            imagePartTime.end();
                             return;
                         }
 //                    System.out.println("Render part END " + format.format(new Date(System.currentTimeMillis())) + " " + Thread.currentThread().getName() + "  " + this);

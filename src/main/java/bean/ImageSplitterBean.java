@@ -5,6 +5,7 @@ import config.Config;
 import hu.vkrissz.bme.raytracer.RayTracer;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import hu.vkrissz.bme.raytracer.model.RenderPart;
+import measure.ElapsedTime;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -96,6 +97,7 @@ public class ImageSplitterBean {
     }
 
     public BufferedImage getImage(InputParams inputParams) {
+        ElapsedTime fullImageTime = new ElapsedTime(ElapsedTime.FULL_IMAGE_RENDER);
 
         int imagePartHeight = Math.max(1, 50000 / inputParams.imageWidth);
         int requestCount = inputParams.imageHeight / imagePartHeight;
@@ -129,7 +131,6 @@ public class ImageSplitterBean {
             inputParams.startY = i * imagePartHeight;
             int remainingImageHeight = inputParams.imageHeight - inputParams.startY;
             inputParams.height = Math.min(imagePartHeight, remainingImageHeight);
-
             try {
                 HttpPost post = new HttpPost(serverUrl);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
@@ -147,6 +148,8 @@ public class ImageSplitterBean {
             }
         }
 
-        return RayTracer.compose(inputParams.imageWidth, inputParams.imageHeight, renderParts);
+        BufferedImage bufferedImage = RayTracer.compose(inputParams.imageWidth, inputParams.imageHeight, renderParts);
+        fullImageTime.end();
+        return bufferedImage;
     }
 }
