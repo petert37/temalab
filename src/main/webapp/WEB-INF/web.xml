@@ -8,8 +8,8 @@
         <env-entry-name>ServerUrl</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
         <!--<env-entry-value>http://ec2-34-194-210-130.compute-1.amazonaws.com:8080/ImagePart</env-entry-value>-->
-        <!--<env-entry-value>http://raytrace3.j.layershift.co.uk/raytrace/ImagePart</env-entry-value>-->
-        <env-entry-value>http://vm.ik.bme.hu:14145/ImagePart</env-entry-value>
+        <env-entry-value>http://raytrace3.j.layershift.co.uk/raytrace/ImagePart</env-entry-value>
+        <!--<env-entry-value>http://vm.ik.bme.hu:14145/ImagePart</env-entry-value>-->
     </env-entry>
 
 </web-app>
