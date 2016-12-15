@@ -49,21 +49,23 @@
 <header>
     <h1>Küldj kérést</h1>
 </header>
+<input type="button" onclick="sayHello()" value="Kuld"/>
+<input type="button" onclick="loadDemo()" value="Demo">
+<a href="gallery.html">Galeria</a>
 <table>
     <tr>
         <th>Json:</th>
         <th>Links</th>
     </tr>
     <tr>
-        <td><label for="description"></label><textarea id="description" name="description" cols="100" rows="30"></textarea>
+        <td><label for="description"></label><textarea id="description" name="description" cols="50"
+                                                       rows="30"></textarea>
         </td>
         <td>
             <dl id="links" style="list-style-type:none"></dl>
         </td>
     </tr>
 </table>
-<input type="button" onclick="sayHello()" value="Kuld"/>
-<input type="button" onclick="loadDemo()" value="Demo">
-<a href="gallery.html">Galeria</a>
+
 </body>
 </html>

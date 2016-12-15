@@ -2,6 +2,7 @@ package servlet;
 
 import bean.ImageSplitterBean;
 import com.google.gson.Gson;
+import config.Config;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import measure.ElapsedTime;
 
@@ -27,6 +28,11 @@ public class SpeedTest extends HttpServlet {
         ElapsedTime parseWorld = new ElapsedTime(ElapsedTime.JSON_PARSE_WORLD);
         InputParams inputParams = new Gson().fromJson(req.getParameter("data"), InputParams.class);
         parseWorld.end();
+        Config config = imageSplitterBean.getConfigFromUrl("http://pastebin.com/raw/aKzEqfL0");
+        System.out.println(new Gson().toJson(config));
+        ImageSplitterBean.PARTS_PER_REQUEST = config.getPartsPerRequest();
+        ImageSplitterBean.PIXELS_PER_REQUEST = config.getPixelsPerRequest();
+        ImageSplitterBean.MAX_CONNECTIONS = config.getMaxConnections();
         BufferedImage bufferedImage = imageSplitterBean.getImage(inputParams);
         ElapsedTime compress = new ElapsedTime(ElapsedTime.COMPRESS_STREAM);
         ImageIO.write(bufferedImage, "PNG", resp.getOutputStream());

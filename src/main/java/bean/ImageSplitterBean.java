@@ -3,6 +3,7 @@ package bean;
 import com.google.gson.Gson;
 import config.Config;
 import hu.vkrissz.bme.raytracer.RayTracer;
+import hu.vkrissz.bme.raytracer.model.ImageSlice;
 import hu.vkrissz.bme.raytracer.model.InputParams;
 import hu.vkrissz.bme.raytracer.model.RenderPart;
 import measure.ElapsedTime;
@@ -20,6 +21,8 @@ import thread.ImagePartRunnable;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,8 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,7 +40,9 @@ import java.util.concurrent.Future;
 @Stateless
 public class ImageSplitterBean {
 
-    private static int MAX_CONNECTIONS = 100;
+    public static volatile int MAX_CONNECTIONS = 1000;
+    public static volatile int PARTS_PER_REQUEST = 100;
+    public static volatile int PIXELS_PER_REQUEST = 11500;
 
     @Resource(name = "ServerUrl")
     private String serverUrl;
@@ -88,6 +92,8 @@ public class ImageSplitterBean {
         try {
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet request = new HttpGet(url);
+            request.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            request.setHeader("Pragma", "no-cache"); // HTTP 1.0.
             HttpResponse response = client.execute(request);
             return new Gson().fromJson(new InputStreamReader(response.getEntity().getContent()), Config.class);
         } catch (IOException e) {
@@ -96,21 +102,28 @@ public class ImageSplitterBean {
         return null;
     }
 
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
     public BufferedImage getImage(InputParams inputParams) {
         ElapsedTime fullImageTime = new ElapsedTime(ElapsedTime.FULL_IMAGE_RENDER);
+//
+//        int imagePartHeight = Math.max(1, 11600 / inputParams.imageWidth);
+//        int requestCount = inputParams.imageHeight / imagePartHeight;
+//        if (inputParams.imageHeight % imagePartHeight != 0) {
+//            requestCount++;
+//        }
 
-        int imagePartHeight = Math.max(1, 50000 / inputParams.imageWidth);
-        int requestCount = inputParams.imageHeight / imagePartHeight;
-        if (inputParams.imageHeight % imagePartHeight != 0) {
-            requestCount++;
+        int sliceSize = PIXELS_PER_REQUEST / PARTS_PER_REQUEST;
+        int side = (int) Math.round(Math.sqrt(sliceSize));
+        int height = Math.min(side * 2, inputParams.imageHeight);
+        int width = Math.min(Math.max(sliceSize / height, 1), inputParams.imageWidth);
+        List<ImageSlice> slices = new LinkedList<>();
+        for (int i = 0; i < inputParams.imageWidth; i += width) {
+            for (int j = 0; j < inputParams.imageHeight; j += height) {
+                slices.add(new ImageSlice(i, j, Math.min(width, inputParams.imageWidth - i), Math.min(height, inputParams.imageHeight - j)));
+            }
         }
 
-        inputParams.startX = 0;
-        inputParams.startY = 0;
-        inputParams.width = inputParams.imageWidth;
-        inputParams.height = imagePartHeight;
-
-        List<RenderPart> renderParts = Collections.synchronizedList(new ArrayList<RenderPart>());
+        List<RenderPart> renderParts = new ArrayList<>();
 
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setDefaultMaxPerRoute(MAX_CONNECTIONS);
@@ -126,19 +139,30 @@ public class ImageSplitterBean {
         CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setConnectionManager(cm).build();
 
         List<Future> futures = Collections.synchronizedList(new ArrayList<>());
-
-        for (int i = 0; i < requestCount; i++) {
-            inputParams.startY = i * imagePartHeight;
-            int remainingImageHeight = inputParams.imageHeight - inputParams.startY;
-            inputParams.height = Math.min(imagePartHeight, remainingImageHeight);
+        int requests = 0;
+        int sliceNum = slices.size();
+        Random random = new Random();
+        ArrayList<ImageSlice> tmpSlices = new ArrayList<>(PARTS_PER_REQUEST);
+        while (slices.size() > 0) {
+            tmpSlices.clear();
+            for (int i = 0; i < PARTS_PER_REQUEST && slices.size() > 0; i++) {
+                final int idx = random.nextInt(slices.size());
+                ImageSlice slice = slices.get(idx);
+                tmpSlices.add(slice);
+                slices.remove(idx);
+            }
+            inputParams.slices = tmpSlices.toArray(new ImageSlice[tmpSlices.size()]);
             try {
                 HttpPost post = new HttpPost(serverUrl);
                 post.setEntity(new StringEntity(new Gson().toJson(inputParams)));
                 futures.add(executorService.submit(new ImagePartRunnable(client, post, renderParts)));
+                requests++;
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("SLICES: " + sliceNum + " (" + width + "x" + height + ")" + " REQUESTS: " + requests);
 
         for (Future f : futures) {
             try {

@@ -9,7 +9,13 @@
         <env-entry-type>java.lang.String</env-entry-type>
         <!--<env-entry-value>http://ec2-34-194-210-130.compute-1.amazonaws.com:8080/ImagePart</env-entry-value>-->
         <env-entry-value>http://raytrace3.j.layershift.co.uk/raytrace/ImagePart</env-entry-value>
+        <!--<env-entry-value>http://tracetest.j.layershift.co.uk/raytrace/ImagePart</env-entry-value>-->
+        <!--<env-entry-value>http://testraytrace3.j.layershift.co.uk/raytrace/ImagePart</env-entry-value>-->
+        <!--<env-entry-value>http://192.168.0.108:8080/ImagePart</env-entry-value>-->
         <!--<env-entry-value>http://vm.ik.bme.hu:14145/ImagePart</env-entry-value>-->
+        <!--<env-entry-value>http://raytrace3.mircloud.host/ImagePart</env-entry-value>-->
+        <!--<env-entry-value>http://bigraytrace3.mircloud.host/ImagePart</env-entry-value>-->
+        <!--<env-entry-value>http://raytest.mircloud.host/ImagePart</env-entry-value>-->
     </env-entry>
 
 </web-app>

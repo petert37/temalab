@@ -1,27 +1,24 @@
 package config;
 
 public class Config {
+    private int partsPerRequest = 100;
+    private int pixelsPerRequest = 11500;
+    private int maxConnections = 100;
 
-    public static final String SRV_URL = "/rayimg";
-    private String imageUrl;
-    private String imagePartUrl;
-    private int maxConnections;
-    private int imageDivision;
-
-    public String getImageUrl() {
-        return imageUrl;
+    public int getPartsPerRequest() {
+        return partsPerRequest;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setPartsPerRequest(int partsPerRequest) {
+        this.partsPerRequest = partsPerRequest;
     }
 
-    public String getImagePartUrl() {
-        return imagePartUrl;
+    public int getPixelsPerRequest() {
+        return pixelsPerRequest;
     }
 
-    public void setImagePartUrl(String imagePartUrl) {
-        this.imagePartUrl = imagePartUrl;
+    public void setPixelsPerRequest(int pixelsPerRequest) {
+        this.pixelsPerRequest = pixelsPerRequest;
     }
 
     public int getMaxConnections() {
@@ -32,21 +29,12 @@ public class Config {
         this.maxConnections = maxConnections;
     }
 
-    public int getImageDivision() {
-        return imageDivision;
-    }
-
-    public void setImageDivision(int imageDivision) {
-        this.imageDivision = imageDivision;
-    }
-
     @Override
     public String toString() {
         return "Config{" +
-                "imageUrl='" + imageUrl + '\'' +
-                ", imagePartUrl='" + imagePartUrl + '\'' +
+                "partsPerRequest=" + partsPerRequest +
+                ", pixelsPerRequest=" + pixelsPerRequest +
                 ", maxConnections=" + maxConnections +
-                ", imageDivision=" + imageDivision +
                 '}';
     }
 }

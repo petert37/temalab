@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 @Stateless
 public class RenderBean {
 
-    public RenderPart render(InputParams params) {
-        return params.renderImagePart();
+    public RenderPart[] render(InputParams params) {
+        return params.renderImageParts();
     }
 }

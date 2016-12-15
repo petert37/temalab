@@ -37,13 +37,12 @@ public class ImagePart extends HttpServlet {
         InputParams params = gson.fromJson(new InputStreamReader(request.getInputStream()), InputParams.class);
         parseTime.end();
         ElapsedTime renderTime = new ElapsedTime(ElapsedTime.RENDER);
-        RenderPart renderPart = renderBean.render(params);
+        RenderPart[] renderParts = renderBean.render(params);
         renderTime.end();
-//        RenderPart renderPart = params.renderImagePart();
         System.out.println("Request render ended: " + format.format(new Date(System.currentTimeMillis()))+ "  " + uuid);
         ElapsedTime sendTime = new ElapsedTime(ElapsedTime.SEND_IMAGE_PART);
         try (ObjectOutputStream oos = new ObjectOutputStream(response.getOutputStream())) {
-            oos.writeObject(renderPart);
+            oos.writeObject(renderParts);
             oos.flush();
         }
         sendTime.end();

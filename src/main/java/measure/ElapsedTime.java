@@ -29,6 +29,6 @@ public class ElapsedTime {
 
     @Override
     public String toString() {
-        return type + ';' + startTime + ';' + endTime + ';';
+        return type + ';' + startTime + ';' + endTime + ';' + (endTime - startTime) + ';';
     }
 }
